@@ -28,7 +28,7 @@ from rest_framework import generics
 #         return JsonResponse(serializer.data)
 
 
-class PassportView(APIView):
+class PassportListView(APIView):
     """Загрузка паспорта (файла)"""
     parser_classes = (MultiPartParser, FormParser)
 
@@ -41,19 +41,10 @@ class PassportView(APIView):
             return Response(passport_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['PUT', 'GET'])
-def passport_detail(request, pk):
+class PassportDetailView(APIView):
     """Загрузка паспортных данных (1 шаг)"""
-    try:
-        passport = Passport.objects.get(pk=pk)
-    except Passport.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = PassportSerializer(passport)
-        return Response(serializer.data)
-
-    if request.method == 'PUT':
+    def put(self, request, pk, format=None):
+        passport = self.get_object(pk)
         serializer = PassportSerializer(passport, data=request.data)
         if serializer.is_valid():
             serializer.save()
